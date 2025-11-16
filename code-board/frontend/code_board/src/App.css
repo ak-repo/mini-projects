@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+
+
+
+/* 🌙 CodeBoard Dark Theme Colors */
+@layer base {
+  :root {
+    --cb-bg: #1f1f23;
+    --cb-surface: #1f2937;
+    --cb-border: #374151;
+    --cb-text: #ffffff;
+    --cb-text-muted: #9ca3af;
+    --cb-primary: #3b82f6;
+    --cb-primary-hover: #2563eb;
+  }
+}
