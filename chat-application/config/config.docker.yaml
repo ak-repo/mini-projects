@@ -1,0 +1,26 @@
+app:
+  name: "chat-app"
+  env: "local"
+
+database:
+  host: localhost      # connect to host's localhost mapped to Docker Postgres
+  port: 542            # make sure this matches your docker-compose port mapping
+  user: chat-user
+  password: chat-password
+  name: chat
+  sslmode: disable
+
+redis:
+  host: localhost      # connect to Redis on host
+  port: 6379
+
+jwt:
+  secret: "super-secret-local-chat"
+
+services:
+  chat:
+    host: localhost    # chat-service is running locally (if you run it locally)
+    port: 50051
+
+gateway:
+  port: 8080

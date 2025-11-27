@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: chat-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: chat-user
+      POSTGRES_PASSWORD: chat-password
+      POSTGRES_DB: chat
+    ports:
+      - "542:5432"   # access DB locally via localhost:542
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat-user -d chat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: chat-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  chat-service:
+    build:
+      context: ../
+      dockerfile: Dockerfile.chat    # points to backend/Dockerfile.chat
+    container_name: chat-service
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      CONFIG_PATH: /app/config/config.docker.yaml
+      POSTGRES_DSN: "postgres://chat-user:chat-password@postgres:5432/chat?sslmode=disable"
+      REDIS_ADDR: "redis:6379"
+    ports:
+      - "50051:50051"     # gRPC service
+    networks:
+      - chatnet
+
+  gateway:
+    build:
+      context: ../
+      dockerfile: Dockerfile.gateway     # points to backend/Dockerfile.gateway
+    container_name: chat-gateway
+    restart: always
+    depends_on:
+      chat-service:
+        condition: service_started
+    environment:
+      CONFIG_PATH: /app/config/config.docker.yaml
+      GRPC_ADDR: "chat-service:50051"
+      REDIS_ADDR: "redis:6379"
+    ports:
+      - "8080:8080"       # REST + WebSocket
+    networks:
+      - chatnet
+
+networks:
+  chatnet:
+
+volumes:
+  pgdata:
+  redis_data:

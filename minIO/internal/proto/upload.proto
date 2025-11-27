@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package upload;
+option go_package = "./internal/proto;uploadpb";
+
+service UploadService {
+  // Client-streaming RPC to upload large files in chunks.
+  rpc Upload(stream UploadRequest) returns (UploadResponse);
+
+  // Get presigned URL for an object
+  rpc GetSignedUrl(GetSignedUrlRequest) returns (GetSignedUrlResponse);
+}
+
+message UploadRequest {
+  // first message should contain metadata
+  oneof payload {
+    FileInfo info = 1;
+    FileChunk chunk = 2;
+  }
+}
+
+message FileInfo {
+  string bucket = 1;           // e.g. "streamhub"
+  string object_name = 2;      // path inside bucket, e.g. "videos/movie.mp4"
+  string content_type = 3;     // "video/mp4"
+}
+
+message FileChunk {
+  bytes data = 1;
+}
+
+message UploadResponse {
+  bool ok = 1;
+  string message = 2;
+  string object_name = 3;
+}
+
+message GetSignedUrlRequest {
+  string bucket = 1;
+  string object_name = 2;
+  int32 expiry_seconds = 3;
+}
+
+message GetSignedUrlResponse {
+  string url = 1;
+}
