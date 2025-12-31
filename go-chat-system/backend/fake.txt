@@ -1,0 +1,14 @@
+// internal/domain/user.go
+package domain
+
+import "time"
+
+
+
+// internal/domain/message.go
+
+
+// internal/domain/conversation.go
+
+
+// internal/domain/call.go

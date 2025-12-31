@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package chat.v1;
+
+option go_package = "./pkg/pb";
+
+service ChatService {
+  rpc BroadcastMessage(BroadcastRequest) returns (BroadcastResponse);
+  rpc GetOnlineUsers(OnlineUsersRequest) returns (OnlineUsersResponse);
+  rpc NotifyPresence(PresenceRequest) returns (PresenceResponse);
+}
+
+message BroadcastRequest {
+  string message_id = 1;
+  string conversation_id = 2;
+  string sender_id = 3;
+  string content = 4;
+  string message_type = 5;
+  repeated string recipient_ids = 6;
+  int64 created_at = 7;
+}
+
+message BroadcastResponse {
+  bool success = 1;
+  int32 delivered_count = 2;
+}
+
+message OnlineUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message OnlineUsersResponse {
+  repeated string online_user_ids = 1;
+}
+
+message PresenceRequest {
+  string user_id = 1;
+  string status = 2; // "online" or "offline"
+  int64 timestamp = 3;
+}
+
+message PresenceResponse {
+  bool success = 1;
+}
